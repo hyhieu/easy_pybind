@@ -1,6 +1,6 @@
 #pragma once
 
-template <typename T>
-T add(T i, T j);
+template<typename T>
+T add(T a, T b);
 
-extern template int add<int>(int, int);
+template<> int add<int>(int, int);

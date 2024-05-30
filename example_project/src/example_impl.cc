@@ -1,8 +1,8 @@
 #include "example_impl.h"
 
-template <typename T>
-T add(T i, T j) {
-    return i + j;
-}
+template<typename T>
+T add(T a, T b) { return a + b; }
 
-template int add<int>(int, int);
+template<> int add<int>(int a, int b) {
+    return a + b;
+}
