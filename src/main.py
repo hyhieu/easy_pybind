@@ -116,44 +116,15 @@ if __name__ == "__main__":
 '''
 
 
-def main(args: argparse.Namespace) -> None:
-    module_name = args.module_name
-    module_path = args.module_path / module_name
-
-    print(f"Generating PyBind11 bindings for project {module_name}...", flush=True)
-    module_path.mkdir(parents=True, exist_ok=True)
-
-    (module_path / "build.sh").write_text(BUILD_SH.format(module_name=module_name))
-    (module_path / "build.sh").chmod(0o755)
-
-    (module_path / "clean.sh").write_text(CLEAN_SH)
-    (module_path / "clean.sh").chmod(0o755)
-
-    src = module_path / "src"
-    src.mkdir(parents=True, exist_ok=True)
-    (src / f"{module_name}.cc").write_text(PROJECT_CC.format(module_name=module_name))
-    (src / f"{module_name}_impl.cc").write_text(IMPL_CC.format(module_name=module_name))
-    (src / f"{module_name}_impl.h").write_text(IMPL_H.format(module_name=module_name))
-
-    if args.with_gitignore:
-        (module_path / ".gitignore").write_text(GITIGNORE)
-
-    if args.with_pytest:
-        (module_path / f"{module_name}_test.py").write_text(
-            TEST_PY.format(module_name=module_name)
-        )
-
-    if args.with_pymain:
-        (module_path / "main.py").write_text(MAIN_PY.format(module_name=module_name))
-
-
-
-if __name__ == "__main__":
+def _parse_args() -> argparse.Namespace:
     class _CustomHelpFormatter(argparse.HelpFormatter):
         def _format_action_invocation(self, action):
-            print(dir(action))
             if action.option_strings == ["--with-gitignore"]:
                 return "--[no-]with-gitignore"
+            if action.option_strings == ["--with-pytest"]:
+                return "--[no-]with-pytest"
+            if action.option_strings == ["--with-pymain"]:
+                return "--[no-]with-pymain"
             return super()._format_action_invocation(action)
 
     parser = argparse.ArgumentParser(formatter_class=_CustomHelpFormatter)
@@ -173,7 +144,7 @@ if __name__ == "__main__":
         type=Path,
         default=Path("."),
         required=False,
-        help="Where the module should be. Defaults to the current directory.",
+        help="Where the module should be. Default to the current directory.",
     )
 
     # --with-gitignore
@@ -182,7 +153,7 @@ if __name__ == "__main__":
         "--with-gitignore",
         dest="with_gitignore",
         action="store_true",
-        help=("If given, will add `.gitignore` file to the module directory to "
+        help=("If given, will add a `.gitignore` file to the module directory to "
               "avoid committing build outputs into GIT."),
     )
     group.add_argument(
@@ -223,4 +194,40 @@ if __name__ == "__main__":
     parser.set_defaults(with_pymain=False)
 
     args = parser.parse_args()
-    main(args)
+    return args
+
+
+def main() -> None:
+    args = _parse_args()
+    module_name = args.module_name
+    module_path = args.module_path / module_name
+
+    print(f"Generating PyBind11 bindings for project {module_name}...", flush=True)
+    module_path.mkdir(parents=True, exist_ok=True)
+
+    (module_path / "build.sh").write_text(BUILD_SH.format(module_name=module_name))
+    (module_path / "build.sh").chmod(0o755)
+
+    (module_path / "clean.sh").write_text(CLEAN_SH)
+    (module_path / "clean.sh").chmod(0o755)
+
+    src = module_path / "src"
+    src.mkdir(parents=True, exist_ok=True)
+    (src / f"{module_name}.cc").write_text(PROJECT_CC.format(module_name=module_name))
+    (src / f"{module_name}_impl.cc").write_text(IMPL_CC.format(module_name=module_name))
+    (src / f"{module_name}_impl.h").write_text(IMPL_H.format(module_name=module_name))
+
+    if args.with_gitignore:
+        (module_path / ".gitignore").write_text(GITIGNORE)
+
+    if args.with_pytest:
+        (module_path / f"{module_name}_test.py").write_text(
+            TEST_PY.format(module_name=module_name)
+        )
+
+    if args.with_pymain:
+        (module_path / "main.py").write_text(MAIN_PY.format(module_name=module_name))
+
+
+if __name__ == "__main__":
+    main()

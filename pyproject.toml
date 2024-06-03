@@ -1,11 +1,18 @@
-# pyproject.toml
+[project]
+name = "easy-pybind"
+version = "1.0.0"
+description = "A simple command line tool to generate PyBind examples."
+authors = [
+    { name = "Hieu Pham", email = "hyhieu@gmail.com" }
+]
+dependencies = []
 
 [build-system]
-
-requires = [
-    "setuptools>=42",
-    "wheel",
-    "pybind11>=2.11",
-]
-
+requires = ["setuptools>=42", "wheel", "pybind11>=2.11"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+easy-pybind = "main:main"
