@@ -18,6 +18,8 @@ def _parse_args() -> argparse.Namespace:
                 return "--[no-]with-pytest"
             if action.option_strings == ["--with-pymain"]:
                 return "--[no-]with-pymain"
+            if action.option_strings == ["--cuda"]:
+                return "--[no-]cuda"
             return super()._format_action_invocation(action)
 
     parser = argparse.ArgumentParser(
@@ -90,6 +92,21 @@ def _parse_args() -> argparse.Namespace:
         help=argparse.SUPPRESS)
     create_parser.set_defaults(with_pymain=False)
 
+    # --cuda
+    group = create_parser.add_mutually_exclusive_group(required=False)
+    group.add_argument(
+        "--cuda",
+        dest="cuda",
+        action="store_true",
+        help=("If given, will generate a CUDA project instead of a CC project.")
+    )
+    group.add_argument(
+        "--no-cuda",
+        dest="cuda",
+        action="store_false",
+        help=argparse.SUPPRESS)
+    create_parser.set_defaults(cuda=False)
+
     args = parser.parse_args()
     return args
 
@@ -101,7 +118,7 @@ def create(args: argparse.Namespace):
     print(f"Generating PyBind11 bindings for project {module_name}...", flush=True)
     module_path.mkdir(parents=True, exist_ok=True)
 
-    (module_path / "build.sh").write_text(fc.build_sh(module_name))
+    (module_path / "build.sh").write_text(fc.build_sh(module_name, use_cuda=args.cuda))
     (module_path / "build.sh").chmod(0o755)
 
     (module_path / "clean.sh").write_text(fc.clean_sh(module_name))
@@ -110,8 +127,12 @@ def create(args: argparse.Namespace):
     src = module_path / "src"
     src.mkdir(parents=True, exist_ok=True)
     (src / f"{module_name}.cc").write_text(fc.project_cc(module_name))
-    (src / f"{module_name}_impl.cc").write_text(fc.impl_cc(module_name))
     (src / f"{module_name}_impl.h").write_text(fc.impl_h(module_name))
+
+    if args.cuda:
+        (src / f"{module_name}_impl.cu").write_text(fc.impl_cc(module_name))
+    else:
+        (src / f"{module_name}_impl.cc").write_text(fc.impl_cc(module_name))
 
     if args.with_gitignore:
         (module_path / ".gitignore").write_text(fc.GITIGNORE)
