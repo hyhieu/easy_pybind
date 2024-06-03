@@ -1,6 +1,6 @@
 venv/*
 *.so
-build/*
-*egg-info*
-*.pytest_cache*
-__pycache__/*
+**/build/*
+**/*egg-info*
+**/*pytest_cache/
+**/__pycache__/

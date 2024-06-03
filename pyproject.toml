@@ -15,4 +15,4 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [project.scripts]
-easy-pybind = "main:main"
+easy-pybind = "easy_pybind.main:main"
