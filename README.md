@@ -21,7 +21,7 @@ $ pip install easy_pybind
 
 The intended usage for `easy_pybind` is to generate a new project:
 ```plaintext
-$ easy_pybind create \
+$ easy-pybind create \
     --module-name="cpp_example" \
     [--cuda] [--with-gitignore] [--with-pytest] [--with-pymain]
 ```
@@ -41,4 +41,4 @@ cpp_example/
 └─ main.py                 # if you have --with-pymain
 ```
 
-For further usage options, please refer to `easy_pybind --help`.
+For further usage options, please refer to `easy-pybind --help`.
